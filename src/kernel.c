@@ -98,16 +98,20 @@ void copy_row(uint8_t src, uint8_t dest) {
   }
 }
 
+void terminal_scroll() {
+  clear_row(0);
+  for (size_t i = 0; i < VGA_HEIGHT - 1; i++) {
+    copy_row(i + 1, i);
+  }
+  clear_row(VGA_HEIGHT - 1);
+  terminal_row--;
+}
+
 void terminal_putchar(char c) {
   if (c == '\n') {
     terminal_column = 0;
     if (++terminal_row == VGA_HEIGHT) {
-      clear_row(0);
-      for (size_t i = 0; i < VGA_HEIGHT - 1; i++) {
-        copy_row(i + 1, i);
-      }
-      clear_row(VGA_HEIGHT - 1);
-      terminal_row--;
+      terminal_scroll();
     }
     return;
   }
@@ -116,15 +120,7 @@ void terminal_putchar(char c) {
   if (++terminal_column == VGA_WIDTH) {
     terminal_column = 0;
     if (++terminal_row == VGA_HEIGHT) {
-      clear_row(0);
-      for (size_t i = 0; i < VGA_HEIGHT - 1; i++) {
-        copy_row(i + 1, i);
-      }
-      clear_row(VGA_HEIGHT - 1);
-      terminal_row--;
-
-      // terminal_buffer[terminal_row * 80 + terminal_column] =
-      // vga_entry('X', VGA_COLOR_GREEN);
+      terminal_scroll();
     }
   }
 }
